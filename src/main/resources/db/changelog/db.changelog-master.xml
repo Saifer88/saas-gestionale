@@ -1,0 +1,755 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- ========================================================================= -->
+    <!-- GESTIONALE PAOLA - COMPLETE MERGED DATABASE SCHEMA (FINAL STATUS V16)     -->
+    <!-- Single consolidated Liquibase schema file merging all features V1 to V16  -->
+    <!-- ========================================================================= -->
+
+    <!-- 1. TRAINING SERVICE -->
+    <changeSet id="001-create-table-training-service" author="gestionale">
+        <comment>Training services offered</comment>
+        <createTable tableName="training_service">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_training_service"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="CLOB" defaultValue=""/>
+            <column name="duration_minutes" type="INT" defaultValueNumeric="60">
+                <constraints nullable="false"/>
+            </column>
+            <column name="color_hex" type="VARCHAR(50)" defaultValue=""/>
+            <column name="is_archived" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- 2. SERVICE RATE -->
+    <changeSet id="002-create-table-service-rate" author="gestionale">
+        <comment>Pricing rates for training services (Schema V3)</comment>
+        <createTable tableName="service_rate">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_service_rate"/>
+            </column>
+            <column name="service_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price_cents" type="BIGINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="duration_minutes" type="INT" defaultValueNumeric="60">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_archived" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="service_rate"
+                                 baseColumnNames="service_id"
+                                 constraintName="fk_service_rate_service"
+                                 referencedTableName="training_service"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <createIndex tableName="service_rate" indexName="idx_service_rate_service">
+            <column name="service_id"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- 3. CLIENT (Full merged schema with V5, V7, V12 additions) -->
+    <changeSet id="003-create-table-client" author="gestionale">
+        <comment>Client profiles (Merged V1-V16 with taxCode, billingAddress, birthDate, preferences)</comment>
+        <createTable tableName="client">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_client"/>
+            </column>
+            <column name="first_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="phone" type="VARCHAR(50)" defaultValue="">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)" defaultValue="">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tax_code" type="VARCHAR(50)" defaultValue="">
+                <constraints nullable="false"/>
+            </column>
+            <column name="billing_address" type="VARCHAR(500)" defaultValue="">
+                <constraints nullable="false"/>
+            </column>
+            <column name="birth_date" type="DATE"/>
+            <column name="notes" type="CLOB" defaultValue="">
+                <constraints nullable="false"/>
+            </column>
+            <column name="anamnesis" type="CLOB" defaultValue="">
+                <constraints nullable="false"/>
+            </column>
+            <column name="physical_analysis" type="CLOB" defaultValue="">
+                <constraints nullable="false"/>
+            </column>
+            <column name="preferred_service_id" type="UUID"/>
+            <column name="preferred_rate_id" type="UUID"/>
+            <column name="joined_on" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_archived" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="client"
+                                 baseColumnNames="preferred_service_id"
+                                 constraintName="fk_client_pref_service"
+                                 referencedTableName="training_service"
+                                 referencedColumnNames="id"
+                                 onDelete="SET NULL"/>
+
+        <addForeignKeyConstraint baseTableName="client"
+                                 baseColumnNames="preferred_rate_id"
+                                 constraintName="fk_client_pref_rate"
+                                 referencedTableName="service_rate"
+                                 referencedColumnNames="id"
+                                 onDelete="SET NULL"/>
+
+        <createIndex tableName="client" indexName="idx_client_pref_service">
+            <column name="preferred_service_id"/>
+        </createIndex>
+        <createIndex tableName="client" indexName="idx_client_pref_rate">
+            <column name="preferred_rate_id"/>
+        </createIndex>
+        <createIndex tableName="client" indexName="idx_client_name_archived">
+            <column name="is_archived"/>
+            <column name="last_name"/>
+            <column name="first_name"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- 4. CLIENT APPOINTMENT PREFERENCE (Schema V4) -->
+    <changeSet id="004-create-table-client-appointment-preference" author="gestionale">
+        <comment>Client weekly appointment preferences</comment>
+        <createTable tableName="client_appointment_preference">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_client_appointment_pref"/>
+            </column>
+            <column name="client_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="weekday" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="start_time" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_time" type="VARCHAR(10)"/>
+            <column name="notes" type="CLOB" defaultValue=""/>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="client_appointment_preference"
+                                 baseColumnNames="client_id"
+                                 constraintName="fk_client_pref_client"
+                                 referencedTableName="client"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <createIndex tableName="client_appointment_preference" indexName="idx_client_pref_client_weekday">
+            <column name="client_id"/>
+            <column name="weekday"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- 5. TRAINING SESSION (Merged V1-V16 with invoiceDate, isBlack, notes, location, status) -->
+    <changeSet id="005-create-table-training-session" author="gestionale">
+        <comment>Training session appointments (Merged V1-V16)</comment>
+        <createTable tableName="training_session">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_training_session"/>
+            </column>
+            <column name="start_date" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="duration_minutes" type="INT" defaultValueNumeric="60">
+                <constraints nullable="false"/>
+            </column>
+            <column name="service_id" type="UUID"/>
+            <column name="service_name" type="VARCHAR(255)" defaultValue="">
+                <constraints nullable="false"/>
+            </column>
+            <column name="location" type="VARCHAR(255)" defaultValue="">
+                <constraints nullable="false"/>
+            </column>
+            <column name="notes" type="CLOB" defaultValue="">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status_raw" type="VARCHAR(50)" defaultValue="planned">
+                <constraints nullable="false"/>
+            </column>
+            <column name="invoice_date" type="TIMESTAMP"/>
+            <column name="is_black" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="training_session"
+                                 baseColumnNames="service_id"
+                                 constraintName="fk_training_session_service"
+                                 referencedTableName="training_service"
+                                 referencedColumnNames="id"
+                                 onDelete="SET NULL"/>
+
+        <createIndex tableName="training_session" indexName="idx_training_session_start">
+            <column name="start_date"/>
+        </createIndex>
+        <createIndex tableName="training_session" indexName="idx_training_session_service">
+            <column name="service_id"/>
+        </createIndex>
+        <createIndex tableName="training_session" indexName="idx_training_session_calendar">
+            <column name="start_date"/>
+            <column name="status_raw"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- 6. LESSON PACKAGE (Merged V1-V16 with paymentMethod, invoiceDate, isBlack, kind) -->
+    <changeSet id="006-create-table-lesson-package" author="gestionale">
+        <comment>Lesson packages and time packages (Merged V1-V16)</comment>
+        <createTable tableName="lesson_package">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_lesson_package"/>
+            </column>
+            <column name="client_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="client_name" type="VARCHAR(255)" defaultValue="">
+                <constraints nullable="false"/>
+            </column>
+            <column name="purchased_on" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price_cents" type="BIGINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="capacity" type="INT" defaultValueNumeric="10">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expires_on" type="TIMESTAMP"/>
+            <column name="notes" type="CLOB" defaultValue="">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_method_raw" type="VARCHAR(50)" defaultValue="cash">
+                <constraints nullable="false"/>
+            </column>
+            <column name="invoice_date" type="TIMESTAMP"/>
+            <column name="is_black" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="kind_raw" type="VARCHAR(50)" defaultValue="lessons">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="lesson_package"
+                                 baseColumnNames="client_id"
+                                 constraintName="fk_lesson_package_client"
+                                 referencedTableName="client"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <createIndex tableName="lesson_package" indexName="idx_lesson_package_client">
+            <column name="client_id"/>
+        </createIndex>
+        <createIndex tableName="lesson_package" indexName="idx_lesson_pkg_client_expires">
+            <column name="client_id"/>
+            <column name="expires_on"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- 7. SESSION PARTICIPANT (Merged V1-V16 with paymentMethod, isPaid) -->
+    <changeSet id="007-create-table-session-participant" author="gestionale">
+        <comment>Session participants (Merged V1-V16 with paymentMethod and participant-level isPaid)</comment>
+        <createTable tableName="session_participant">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_session_participant"/>
+            </column>
+            <column name="session_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="client_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="client_name" type="VARCHAR(255)" defaultValue="">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price_cents" type="BIGINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="package_id" type="UUID"/>
+            <column name="payment_method_raw" type="VARCHAR(50)" defaultValue="cash">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_paid" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="session_participant"
+                                 baseColumnNames="session_id"
+                                 constraintName="fk_session_part_session"
+                                 referencedTableName="training_session"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint baseTableName="session_participant"
+                                 baseColumnNames="client_id"
+                                 constraintName="fk_session_part_client"
+                                 referencedTableName="client"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint baseTableName="session_participant"
+                                 baseColumnNames="package_id"
+                                 constraintName="fk_session_part_package"
+                                 referencedTableName="lesson_package"
+                                 referencedColumnNames="id"
+                                 onDelete="SET NULL"/>
+
+        <createIndex tableName="session_participant" indexName="idx_session_part_session">
+            <column name="session_id"/>
+        </createIndex>
+        <createIndex tableName="session_participant" indexName="idx_session_part_client">
+            <column name="client_id"/>
+        </createIndex>
+        <createIndex tableName="session_participant" indexName="idx_session_part_package">
+            <column name="package_id"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- 8. PACKAGE USE -->
+    <changeSet id="008-create-table-package-use" author="gestionale">
+        <comment>Track usage and deductions from lesson packages</comment>
+        <createTable tableName="package_use">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_package_use"/>
+            </column>
+            <column name="package_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="session_participant_id" type="UUID"/>
+            <column name="session_id" type="UUID"/>
+            <column name="used_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="units_deducted" type="INT" defaultValueNumeric="1">
+                <constraints nullable="false"/>
+            </column>
+            <column name="notes" type="CLOB" defaultValue=""/>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="package_use"
+                                 baseColumnNames="package_id"
+                                 constraintName="fk_package_use_package"
+                                 referencedTableName="lesson_package"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint baseTableName="package_use"
+                                 baseColumnNames="session_participant_id"
+                                 constraintName="fk_package_use_part"
+                                 referencedTableName="session_participant"
+                                 referencedColumnNames="id"
+                                 onDelete="SET NULL"/>
+
+        <addForeignKeyConstraint baseTableName="package_use"
+                                 baseColumnNames="session_id"
+                                 constraintName="fk_package_use_session"
+                                 referencedTableName="training_session"
+                                 referencedColumnNames="id"
+                                 onDelete="SET NULL"/>
+
+        <createIndex tableName="package_use" indexName="idx_package_use_pkg">
+            <column name="package_id"/>
+        </createIndex>
+        <createIndex tableName="package_use" indexName="idx_package_use_session_part">
+            <column name="session_participant_id"/>
+        </createIndex>
+        <createIndex tableName="package_use" indexName="idx_package_use_session">
+            <column name="session_id"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- 9. LEDGER ENTRY (Accounting movements) -->
+    <changeSet id="009-create-table-ledger-entry" author="gestionale">
+        <comment>Accounting and cash ledger entries</comment>
+        <createTable tableName="ledger_entry">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_ledger_entry"/>
+            </column>
+            <column name="date" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="amount_cents" type="BIGINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="direction_raw" type="VARCHAR(50)" defaultValue="income">
+                <constraints nullable="false"/>
+            </column>
+            <column name="category" type="VARCHAR(100)" defaultValue="">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="CLOB" defaultValue="">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_method_raw" type="VARCHAR(50)" defaultValue="cash">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_black" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="client_id" type="UUID"/>
+            <column name="package_id" type="UUID"/>
+            <column name="session_id" type="UUID"/>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="ledger_entry"
+                                 baseColumnNames="client_id"
+                                 constraintName="fk_ledger_entry_client"
+                                 referencedTableName="client"
+                                 referencedColumnNames="id"
+                                 onDelete="SET NULL"/>
+
+        <addForeignKeyConstraint baseTableName="ledger_entry"
+                                 baseColumnNames="package_id"
+                                 constraintName="fk_ledger_entry_package"
+                                 referencedTableName="lesson_package"
+                                 referencedColumnNames="id"
+                                 onDelete="SET NULL"/>
+
+        <addForeignKeyConstraint baseTableName="ledger_entry"
+                                 baseColumnNames="session_id"
+                                 constraintName="fk_ledger_entry_session"
+                                 referencedTableName="training_session"
+                                 referencedColumnNames="id"
+                                 onDelete="SET NULL"/>
+
+        <createIndex tableName="ledger_entry" indexName="idx_ledger_entry_date">
+            <column name="date"/>
+        </createIndex>
+        <createIndex tableName="ledger_entry" indexName="idx_ledger_entry_client">
+            <column name="client_id"/>
+        </createIndex>
+        <createIndex tableName="ledger_entry" indexName="idx_ledger_entry_pkg">
+            <column name="package_id"/>
+        </createIndex>
+        <createIndex tableName="ledger_entry" indexName="idx_ledger_entry_session">
+            <column name="session_id"/>
+        </createIndex>
+        <createIndex tableName="ledger_entry" indexName="idx_ledger_reporting">
+            <column name="date"/>
+            <column name="direction_raw"/>
+            <column name="is_black"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- 10. UNAVAILABILITY -->
+    <changeSet id="010-create-table-unavailability" author="gestionale">
+        <comment>Trainer schedule unavailability periods</comment>
+        <createTable tableName="unavailability">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_unavailability"/>
+            </column>
+            <column name="start_date" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_date" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reason" type="VARCHAR(255)" defaultValue=""/>
+            <column name="all_day" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="notes" type="CLOB" defaultValue=""/>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="unavailability" indexName="idx_unavailability_range">
+            <column name="start_date"/>
+            <column name="end_date"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- 11. INVOICE (Schema V8) -->
+    <changeSet id="011-create-table-invoice" author="gestionale">
+        <comment>Electronic invoices for clients</comment>
+        <createTable tableName="invoice">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_invoice"/>
+            </column>
+            <column name="client_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="invoice_number" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uk_invoice_number"/>
+            </column>
+            <column name="invoice_date" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="amount_cents" type="BIGINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tax_cents" type="BIGINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status_raw" type="VARCHAR(50)" defaultValue="draft">
+                <constraints nullable="false"/>
+            </column>
+            <column name="pdf_path" type="VARCHAR(500)"/>
+            <column name="notes" type="CLOB" defaultValue=""/>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="invoice"
+                                 baseColumnNames="client_id"
+                                 constraintName="fk_invoice_client"
+                                 referencedTableName="client"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <createIndex tableName="invoice" indexName="idx_invoice_client">
+            <column name="client_id"/>
+        </createIndex>
+        <createIndex tableName="invoice" indexName="idx_invoice_date">
+            <column name="invoice_date"/>
+        </createIndex>
+        <createIndex tableName="invoice" indexName="idx_invoice_client_date">
+            <column name="client_id"/>
+            <column name="invoice_date"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- 12. EXPENSE (Merged V11, V14, V15 with isPersonal) -->
+    <changeSet id="012-create-table-expense" author="gestionale">
+        <comment>One-time and recurring business/personal expenses</comment>
+        <createTable tableName="expense">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_expense"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="amount_cents" type="BIGINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="kind_raw" type="VARCHAR(50)" defaultValue="oneTime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="source_key" type="VARCHAR(255)" defaultValue="">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_personal" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="expense" indexName="idx_expense_date">
+            <column name="date"/>
+        </createIndex>
+        <createIndex tableName="expense" indexName="idx_expense_reporting">
+            <column name="date"/>
+            <column name="is_personal"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- 13. COURSE (Schema V14) -->
+    <changeSet id="013-create-table-course" author="gestionale">
+        <comment>Recurring weekly courses / group classes</comment>
+        <createTable tableName="course">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_course"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="weekday" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="start_time" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="duration_minutes" type="INT" defaultValueNumeric="60">
+                <constraints nullable="false"/>
+            </column>
+            <column name="max_capacity" type="INT" defaultValueNumeric="10">
+                <constraints nullable="false"/>
+            </column>
+            <column name="location" type="VARCHAR(255)" defaultValue="">
+                <constraints nullable="false"/>
+            </column>
+            <column name="service_id" type="UUID"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="notes" type="CLOB" defaultValue=""/>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="course"
+                                 baseColumnNames="service_id"
+                                 constraintName="fk_course_service"
+                                 referencedTableName="training_service"
+                                 referencedColumnNames="id"
+                                 onDelete="SET NULL"/>
+
+        <createIndex tableName="course" indexName="idx_course_service">
+            <column name="service_id"/>
+        </createIndex>
+        <createIndex tableName="course" indexName="idx_course_weekday">
+            <column name="weekday"/>
+            <column name="is_active"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- 14. COURSE PARTICIPANT (Schema V14) -->
+    <changeSet id="014-create-table-course-participant" author="gestionale">
+        <comment>Enrollment of clients in courses, optionally linked to time packages</comment>
+        <createTable tableName="course_participant">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_course_participant"/>
+            </column>
+            <column name="course_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="client_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="joined_on" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="package_id" type="UUID"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="notes" type="CLOB" defaultValue=""/>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="course_participant"
+                                 baseColumnNames="course_id"
+                                 constraintName="fk_course_part_course"
+                                 referencedTableName="course"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint baseTableName="course_participant"
+                                 baseColumnNames="client_id"
+                                 constraintName="fk_course_part_client"
+                                 referencedTableName="client"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint baseTableName="course_participant"
+                                 baseColumnNames="package_id"
+                                 constraintName="fk_course_part_package"
+                                 referencedTableName="lesson_package"
+                                 referencedColumnNames="id"
+                                 onDelete="SET NULL"/>
+
+        <addUniqueConstraint tableName="course_participant"
+                             columnNames="course_id, client_id"
+                             constraintName="uk_course_part_course_client"/>
+
+        <createIndex tableName="course_participant" indexName="idx_course_part_course">
+            <column name="course_id"/>
+        </createIndex>
+        <createIndex tableName="course_participant" indexName="idx_course_part_client">
+            <column name="client_id"/>
+        </createIndex>
+        <createIndex tableName="course_participant" indexName="idx_course_part_package">
+            <column name="package_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
