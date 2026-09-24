@@ -196,7 +196,7 @@
         </createIndex>
     </changeSet>
 
-    <!-- 5. TRAINING SESSION (Merged V1-V16 with invoiceDate, isBlack, notes, location, status) -->
+    <!-- 5. TRAINING SESSION (Merged V1-V16 with invoiceDate, notes, location, status) -->
     <changeSet id="005-create-table-training-session" author="gestionale">
         <comment>Training session appointments (Merged V1-V16)</comment>
         <createTable tableName="training_session">
@@ -223,9 +223,6 @@
                 <constraints nullable="false"/>
             </column>
             <column name="invoice_date" type="TIMESTAMP"/>
-            <column name="is_black" type="BOOLEAN" defaultValueBoolean="false">
-                <constraints nullable="false"/>
-            </column>
             <column name="created_at" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -331,6 +328,9 @@
                 <constraints nullable="false"/>
             </column>
             <column name="is_paid" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_black" type="BOOLEAN" defaultValueBoolean="false">
                 <constraints nullable="false"/>
             </column>
         </createTable>

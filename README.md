@@ -70,7 +70,6 @@ erDiagram
         UUID service_id FK
         VARCHAR status_raw
         TIMESTAMP invoice_date
-        BOOLEAN is_black
         TIMESTAMP created_at
         TIMESTAMP updated_at
     }
@@ -99,6 +98,7 @@ erDiagram
         UUID package_id FK
         VARCHAR payment_method_raw
         BOOLEAN is_paid
+        BOOLEAN is_black
     }
 
     PACKAGE_USE {
