@@ -4,7 +4,6 @@
     <groupId>com.pirris</groupId>
     <artifactId>gestionale</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <packaging>quarkus</packaging>
 
     <properties>
         <compiler-plugin.version>3.15.0</compiler-plugin.version>
@@ -95,7 +94,7 @@
                 <configuration>
                     <changeLogFile>src/main/resources/db/changelog/db.changelog-master.xml</changeLogFile>
                     <driver>org.h2.Driver</driver>
-                    <url>jdbc:h2:file:./target/db/testdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL</url>
+                    <url>jdbc:h2:file:./data/gestionale;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;AUTO_SERVER=TRUE</url>
                     <username>sa</username>
                     <password></password>
                     <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
@@ -106,6 +105,15 @@
                 <artifactId>quarkus-maven-plugin</artifactId>
                 <version>${quarkus.platform.version}</version>
                 <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>build</goal>
+                            <goal>generate-code</goal>
+                            <goal>generate-code-tests</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>

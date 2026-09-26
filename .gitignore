@@ -14,9 +14,12 @@ target/
 
 # Local Database Files (H2 / SQLite / Embedded)
 target/db/
+data/
+.data/
 *.mv.db
 *.trace.db
 *.db
+*.lock.db
 
 # IntelliJ IDEA
 .idea/
