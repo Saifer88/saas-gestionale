@@ -1,0 +1,56 @@
+{
+  ".quarkus/cli/plugins/quarkus-cli-catalog.json": {
+    "mtime": 1790961611.3541918,
+    "seen": 1790984232.1444259,
+    "ast_hash": "a68d17fbf70ea92a5fccbde89af9cffd",
+    "semantic_hash": "a68d17fbf70ea92a5fccbde89af9cffd"
+  },
+  ".vscode/settings.json": {
+    "mtime": 1790961647.5724764,
+    "seen": 1790984232.144427,
+    "ast_hash": "6d23aa019752c4ede6ebbb894b9f3e00",
+    "semantic_hash": "6d23aa019752c4ede6ebbb894b9f3e00"
+  },
+  "mvnw": {
+    "mtime": 1790350345.6095073,
+    "seen": 1790984232.144428,
+    "ast_hash": "ab50dd89da7da2346b28003352eeeeeb",
+    "semantic_hash": "ab50dd89da7da2346b28003352eeeeeb"
+  },
+  "pom.xml": {
+    "mtime": 1790961611.3553214,
+    "seen": 1790984232.144429,
+    "ast_hash": "117ce0d8a54bd613c13a177b5b5205fa",
+    "semantic_hash": "117ce0d8a54bd613c13a177b5b5205fa"
+  },
+  "src/main/java/com/pirris/GreetingResource.java": {
+    "mtime": 1790262438.0,
+    "seen": 1790984232.1444302,
+    "ast_hash": "c8f5577e1e7c3159011834bcad5c7bea",
+    "semantic_hash": "c8f5577e1e7c3159011834bcad5c7bea"
+  },
+  "src/main/java/com/pirris/MyEntity.java": {
+    "mtime": 1790262438.0,
+    "seen": 1790984232.144431,
+    "ast_hash": "de8c1d2862b3030b70b2d095a779ddf2",
+    "semantic_hash": "de8c1d2862b3030b70b2d095a779ddf2"
+  },
+  "src/main/resources/db/schema.sql": {
+    "mtime": 1790348364.3508465,
+    "seen": 1790984232.144432,
+    "ast_hash": "9d17a1474b10d2934e5a4d4e87394cac",
+    "semantic_hash": "9d17a1474b10d2934e5a4d4e87394cac"
+  },
+  "src/main/resources/import.sql": {
+    "mtime": 1790262438.0,
+    "seen": 1790984232.144438,
+    "ast_hash": "f5bf54bf1e682233bd6be85f8c14a6ce",
+    "semantic_hash": "f5bf54bf1e682233bd6be85f8c14a6ce"
+  },
+  "src/test/java/com/pirris/GreetingResourceTest.java": {
+    "mtime": 1790350230.0230958,
+    "seen": 1790984232.144439,
+    "ast_hash": "95006b08f92210392e840494dd047a1e",
+    "semantic_hash": "95006b08f92210392e840494dd047a1e"
+  }
+}
