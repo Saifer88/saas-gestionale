@@ -2,6 +2,7 @@ package com.pirris.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -49,11 +50,27 @@ public class ClientModel extends AuditedModel {
     @Column(name = "physical_analysis", nullable = false)
     public String physicalAnalysis = "";
 
+    // --- Preferenze di appuntamento (1-a-1 col cliente): snapshot dell'ultimo
+    //     appuntamento salvato, usato per precompilare il form di nuova lezione.
+    //     Tutte nullable: un cliente nuovo non ha ancora preferenze.
+
     @Column(name = "preferred_service_id")
     public UUID preferredServiceId;
 
     @Column(name = "preferred_rate_id")
     public UUID preferredRateId;
+
+    @Column(name = "preferred_package_id")
+    public UUID preferredPackageId;
+
+    @Column(name = "preferred_time")
+    public LocalTime preferredTime;
+
+    @Column(name = "preferred_duration_minutes")
+    public Integer preferredDurationMinutes;
+
+    @Column(name = "preferred_price_cents")
+    public Long preferredPriceCents;
 
     @Column(name = "joined_on", nullable = false)
     public LocalDateTime joinedOn;

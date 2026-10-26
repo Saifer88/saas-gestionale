@@ -6,9 +6,10 @@ Piano di implementazione del backend a servizio dell'app `paola_gestionale`.
 **Obiettivo**: mappare lo schema in entity Panache, normalizzato e verificato.
 
 - [x] `BaseModel` (UUID PK) e `AuditedModel` (created/updated automatici)
-- [x] Entity per le 12 tabelle con suffisso `Model`
+- [x] Entity per le 11 tabelle con suffisso `Model`
 - [x] Enum di dominio tipizzati con `AttributeConverter` (status, kind, payment method)
 - [x] Smagrimento: eliminati `ledger_entry` e `package_use` (dati derivabili)
+- [x] Preferenze di appuntamento integrate in `client` (relazione 1-a-1, tabella separata eliminata)
 - [x] Rimosse colonne denormalizzate (`service_name`, `client_name`, `location`)
 - [x] `course_id` su `training_session` (corsi come occorrenze di sessione)
 - [x] `start_time`/`end_time` tipizzati `LocalTime`

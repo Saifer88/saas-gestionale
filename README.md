@@ -66,7 +66,7 @@ Lo schema è gestito da **Liquibase** (eseguito automaticamente all'avvio in dev
 
 ---
 
-## 📊 Schema del database (12 tabelle)
+## 📊 Schema del database (11 tabelle)
 
 ```mermaid
 erDiagram
@@ -75,7 +75,6 @@ erDiagram
     TRAINING_SERVICE ||--o{ TRAINING_SESSION : "categorizza"
     TRAINING_SERVICE ||--o{ COURSE : "fornisce servizio"
     SERVICE_RATE ||--o{ CLIENT : "tariffa preferita"
-    CLIENT ||--o{ CLIENT_APPOINTMENT_PREFERENCE : "preferenze orarie"
     CLIENT ||--o{ LESSON_PACKAGE : "acquista"
     CLIENT ||--o{ SESSION_PARTICIPANT : "partecipa"
     CLIENT ||--o{ INVOICE : "riceve fatture"
@@ -91,16 +90,15 @@ erDiagram
 |---|---------|-------|
 | 1 | `training_service` | Catalogo discipline/servizi |
 | 2 | `service_rate` | Tariffe e durate per servizio |
-| 3 | `client` | Anagrafica, codice fiscale, anamnesi, preferenze |
-| 4 | `client_appointment_preference` | Fasce orarie settimanali preferite |
-| 5 | `training_session` | Appuntamenti; occorrenza di corso se `course_id` è valorizzato |
-| 6 | `lesson_package` | Pacchetti a lezioni o a tempo |
-| 7 | `session_participant` | Partecipanti: prezzo, pacchetto, pagato, bianco/nero |
-| 8 | `unavailability` | Blocchi calendario del trainer |
-| 9 | `invoice` | Fatture clienti |
-| 10 | `expense` | Spese aziendali/personali |
-| 11 | `course` | Template di corsi ricorrenti settimanali |
-| 12 | `course_participant` | Iscrizioni ai corsi |
+| 3 | `client` | Anagrafica, codice fiscale, anamnesi, preferenze di appuntamento integrate |
+| 4 | `training_session` | Appuntamenti; occorrenza di corso se `course_id` è valorizzato |
+| 5 | `lesson_package` | Pacchetti a lezioni o a tempo |
+| 6 | `session_participant` | Partecipanti: prezzo, pacchetto, pagato, bianco/nero |
+| 7 | `unavailability` | Blocchi calendario del trainer |
+| 8 | `invoice` | Fatture clienti |
+| 9 | `expense` | Spese aziendali/personali |
+| 10 | `course` | Template di corsi ricorrenti settimanali |
+| 11 | `course_participant` | Iscrizioni ai corsi |
 
 ### Note
 - **Contabilità**: i movimenti non sono memorizzati. Addebiti/incassi di una lezione

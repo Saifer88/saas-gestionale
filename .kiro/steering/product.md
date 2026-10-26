@@ -6,10 +6,10 @@ nasce offline-first con persistenza locale SwiftData + sync iCloud; questo backe
 ne è l'evoluzione lato server e ne rispecchia il modello di dominio e i casi d'uso,
 non lo schema di un DB generico.
 
-## Domini funzionali (12 tabelle)
+## Domini funzionali (11 tabelle)
 
 - **Catalogo servizi**: discipline di training (`training_service`) e relative tariffe/durate (`service_rate`).
-- **Anagrafica clienti**: dati personali, codice fiscale, indirizzo di fatturazione, anamnesi medica, analisi fisica, preferenze di servizio/tariffa (`client`) e fasce orarie ricorrenti preferite (`client_appointment_preference`).
+- **Anagrafica clienti**: dati personali, codice fiscale, indirizzo di fatturazione, anamnesi medica, analisi fisica e preferenze di appuntamento integrate (`client`): servizio/tariffa/pacchetto preferiti, orario e durata abituali — snapshot dell'ultimo appuntamento, usato per precompilare il form.
 - **Agenda**: appuntamenti individuali o di gruppo (`training_session`), partecipanti alle sessioni (`session_participant`) e blocchi di indisponibilità del trainer (`unavailability`).
 - **Pacchetti prepagati**: pacchetti a lezioni o a tempo (`lesson_package`).
 - **Corsi di gruppo**: corsi ricorrenti settimanali come template (`course`) e iscrizioni (`course_participant`).
@@ -31,7 +31,7 @@ non lo schema di un DB generico.
 
 ## Stato
 
-Schema DB completo (12 tabelle Liquibase). Modello Panache implementato e verificato
+Schema DB completo (11 tabelle Liquibase). Modello Panache implementato e verificato
 (converter tipizzati, mapping validato contro lo schema). Layer resource orientato
 alle view dell'app in costruzione, con servizi stub da riempire. Logica di business
 (deduzione crediti derivata, calcolo saldi/incassi, calendario, reporting, auth)

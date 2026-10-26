@@ -4,7 +4,7 @@
 
 ```
 src/main/java/com/pirris/
-├── model/                      # Entity Panache (active record), 12 tabelle
+├── model/                      # Entity Panache (active record), 11 tabelle
 │   ├── BaseModel.java          # PK UUID assegnata su persist
 │   ├── AuditedModel.java       # + created_at / updated_at automatici
 │   ├── <Nome>Model.java        # una per tabella

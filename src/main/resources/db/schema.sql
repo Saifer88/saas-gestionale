@@ -46,6 +46,10 @@ CREATE TABLE client (
     physical_analysis CLOB DEFAULT '' NOT NULL,
     preferred_service_id UUID,
     preferred_rate_id UUID,
+    preferred_package_id UUID,
+    preferred_time TIME,
+    preferred_duration_minutes INT,
+    preferred_price_cents BIGINT,
     joined_on TIMESTAMP NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
@@ -57,21 +61,6 @@ CREATE TABLE client (
 CREATE INDEX idx_client_pref_service ON client(preferred_service_id);
 CREATE INDEX idx_client_pref_rate ON client(preferred_rate_id);
 CREATE INDEX idx_client_name_archived ON client(is_archived, last_name, first_name);
-
--- 4. CLIENT APPOINTMENT PREFERENCE
-CREATE TABLE client_appointment_preference (
-    id UUID NOT NULL,
-    client_id UUID NOT NULL,
-    weekday INT NOT NULL,
-    start_time TIME NOT NULL,
-    end_time TIME,
-    notes CLOB DEFAULT '',
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL,
-    CONSTRAINT pk_client_appointment_pref PRIMARY KEY (id),
-    CONSTRAINT fk_client_pref_client FOREIGN KEY (client_id) REFERENCES client (id) ON DELETE CASCADE
-);
-CREATE INDEX idx_client_pref_client_weekday ON client_appointment_preference(client_id, weekday);
 
 -- 5. TRAINING SESSION
 CREATE TABLE training_session (

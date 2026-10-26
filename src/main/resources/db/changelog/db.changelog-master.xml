@@ -116,6 +116,10 @@
             </column>
             <column name="preferred_service_id" type="UUID"/>
             <column name="preferred_rate_id" type="UUID"/>
+            <column name="preferred_package_id" type="UUID"/>
+            <column name="preferred_time" type="TIME"/>
+            <column name="preferred_duration_minutes" type="INT"/>
+            <column name="preferred_price_cents" type="BIGINT"/>
             <column name="joined_on" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -157,46 +161,7 @@
         </createIndex>
     </changeSet>
 
-    <!-- 4. CLIENT APPOINTMENT PREFERENCE (Schema V4) -->
-    <changeSet id="004-create-table-client-appointment-preference" author="gestionale">
-        <comment>Client weekly appointment preferences</comment>
-        <createTable tableName="client_appointment_preference">
-            <column name="id" type="UUID">
-                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_client_appointment_pref"/>
-            </column>
-            <column name="client_id" type="UUID">
-                <constraints nullable="false"/>
-            </column>
-            <column name="weekday" type="INT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="start_time" type="TIME">
-                <constraints nullable="false"/>
-            </column>
-            <column name="end_time" type="TIME"/>
-            <column name="notes" type="CLOB" defaultValue=""/>
-            <column name="created_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column name="updated_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-
-        <addForeignKeyConstraint baseTableName="client_appointment_preference"
-                                 baseColumnNames="client_id"
-                                 constraintName="fk_client_pref_client"
-                                 referencedTableName="client"
-                                 referencedColumnNames="id"
-                                 onDelete="CASCADE"/>
-
-        <createIndex tableName="client_appointment_preference" indexName="idx_client_pref_client_weekday">
-            <column name="client_id"/>
-            <column name="weekday"/>
-        </createIndex>
-    </changeSet>
-
-    <!-- 5. TRAINING SESSION (appointment; also a course occurrence when course_id is set) -->
+    <!-- 4. TRAINING SESSION (appointment; also a course occurrence when course_id is set) -->
     <changeSet id="005-create-table-training-session" author="gestionale">
         <comment>Training session appointments (also recurring-course occurrences)</comment>
         <createTable tableName="training_session">
