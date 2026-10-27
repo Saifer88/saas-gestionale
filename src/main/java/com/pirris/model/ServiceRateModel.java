@@ -15,7 +15,7 @@ import jakarta.validation.constraints.PositiveOrZero;
  */
 @Entity
 @Table(name = "service_rate")
-public class ServiceRateModel extends AuditedModel {
+public class ServiceRateModel extends TenantModel {
 
     @NotNull
     @Column(name = "service_id", nullable = false)

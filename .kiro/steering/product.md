@@ -1,10 +1,17 @@
 # Prodotto — Gestionale Paola
 
-Backend per la gestione di un'attività di personal training. Fornisce le API che
-l'app **paola_gestionale** (client nativo SwiftUI per macOS/iOS) consuma. L'app
-nasce offline-first con persistenza locale SwiftData + sync iCloud; questo backend
-ne è l'evoluzione lato server e ne rispecchia il modello di dominio e i casi d'uso,
-non lo schema di un DB generico.
+Backend SaaS **multi-tenant** per la gestione di attività di personal training.
+Fornisce le API che l'app **paola_gestionale** (client nativo SwiftUI per macOS/iOS)
+consuma. L'app nasce offline-first single-user (SwiftData + sync iCloud); questo
+backend ne è l'evoluzione server e la porta verso un prodotto multi-studio, di cui
+rispecchia il modello di dominio e i casi d'uso, non lo schema di un DB generico.
+
+## Multi-tenant e identità (2 tabelle)
+
+- **Tenant = studio** (`studio`): ogni studio è isolato, vede solo i propri dati. Predisposto per ospitare più operatori in futuro.
+- **Account** (`account`): identità di login (email, hash BCrypt, ruolo `admin`/`user`), appartiene a uno studio.
+- Isolamento applicativo: `studio_id` su ogni tabella di dominio; l'accesso dati passa da repository tenant-aware che filtrano/stampano sempre lo studio corrente (deny-by-default).
+- Auth JWT: login pubblico, cambio password per l'utente, registrazione studio/account solo per l'admin.
 
 ## Domini funzionali (11 tabelle)
 
@@ -31,8 +38,10 @@ non lo schema di un DB generico.
 
 ## Stato
 
-Schema DB completo (11 tabelle Liquibase). Modello Panache implementato e verificato
-(converter tipizzati, mapping validato contro lo schema). Layer resource orientato
-alle view dell'app in costruzione, con servizi stub da riempire. Logica di business
-(deduzione crediti derivata, calcolo saldi/incassi, calendario, reporting, auth)
+Schema DB (13 tabelle Liquibase: 11 di dominio + studio + account). Modello Panache
+verificato (converter tipizzati, campi testo lungo come LONGVARCHAR, mapping validato).
+Multi-tenant con isolamento applicativo e autenticazione JWT implementati e verificati
+(test di isolamento tra studi + flusso auth verdi). Layer resource orientato alle view
+dell'app in costruzione, con servizi stub da riempire. Logica di business
+(deduzione crediti derivata, calcolo saldi/incassi, calendario, reporting)
 ancora da sviluppare — vedi `PLAN.md`.

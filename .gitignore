@@ -77,3 +77,7 @@ replay_pid*
 *.secret
 *.pem
 *.key
+# JWT: the private signing key must never be committed; it is provided per
+# environment (dev: local file, prod: env var / secret). The public verification
+# key (*.pub) is safe to track.
+!*.pub

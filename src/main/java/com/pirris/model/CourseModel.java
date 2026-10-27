@@ -3,6 +3,9 @@ package com.pirris.model;
 import java.time.LocalTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -16,7 +19,7 @@ import jakarta.validation.constraints.NotNull;
  */
 @Entity
 @Table(name = "course")
-public class CourseModel extends AuditedModel {
+public class CourseModel extends TenantModel {
 
     @NotBlank
     @Column(name = "name", nullable = false)
@@ -47,6 +50,7 @@ public class CourseModel extends AuditedModel {
     @Column(name = "is_active", nullable = false)
     public boolean active = true;
 
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     @Column(name = "notes")
     public String notes = "";
 }

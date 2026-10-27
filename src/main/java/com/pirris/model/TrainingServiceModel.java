@@ -1,5 +1,8 @@
 package com.pirris.model;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -11,12 +14,13 @@ import jakarta.validation.constraints.NotBlank;
  */
 @Entity
 @Table(name = "training_service")
-public class TrainingServiceModel extends AuditedModel {
+public class TrainingServiceModel extends TenantModel {
 
     @NotBlank
     @Column(name = "name", nullable = false)
     public String name;
 
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     @Column(name = "description")
     public String description = "";
 

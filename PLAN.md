@@ -13,7 +13,20 @@ Piano di implementazione del backend a servizio dell'app `paola_gestionale`.
 - [x] Rimosse colonne denormalizzate (`service_name`, `client_name`, `location`)
 - [x] `course_id` su `training_session` (corsi come occorrenze di sessione)
 - [x] `start_time`/`end_time` tipizzati `LocalTime`
+- [x] Campi testo lungo come LONGVARCHAR (`@JdbcTypeCode`) per allineare entity e CLOB
 - [x] Verifica mapping contro schema Liquibase su H2 (`SchemaMappingTest`)
+
+## Phase 1b: Multi-tenant + autenticazione ✅
+**Obiettivo**: isolamento dati tra studi e login sicuro.
+
+- [x] Entity identità `StudioModel` (tenant) + `AccountModel` (ruoli admin/user)
+- [x] `studio_id` su tutte le 11 tabelle di dominio (superclasse unica `TenantModel`)
+- [x] Isolamento applicativo: `TenantContext` (studio dal JWT) + `TenantRepository` (filtra/stampa sempre lo studio), deny-by-default
+- [x] Auth JWT RS256 (smallrye-jwt) + password BCrypt
+- [x] Endpoint: login (pubblico), change-password (utente), register studio/account (solo admin)
+- [x] Policy HTTP deny-by-default su `/api/*`; prefisso via `quarkus.rest.path`
+- [x] Verifica: isolamento tra studi (`TenantIsolationTest`) + flusso auth (`AuthFlowTest`)
+- [ ] Hardening prod: chiave privata JWT via env/secret (non classpath), rotazione
 
 ## Phase 2: Layer resource per view 🔌
 **Obiettivo**: una resource per view dell'app, con DTO dedicati e servizi stub.
@@ -31,6 +44,7 @@ Pattern per ogni view: interfaccia `*Resource` (annotation JAX-RS) + `*ResourceI
 - [ ] **Agenda**: calendario giorno/settimana/mese (sessioni non annullate + indisponibilità), slot suggeriti
 - [ ] **Clienti**: lista/ricerca/filtri (attivi/archiviati), dettaglio con saldo e storico, save draft, archivia
     - [x] `ClientDraftDto` (residuo creato prima dell'approccio per-view; da integrare qui)
+    - [x] `ClientRepository` tenant-aware (list attivi, ricerca)
     - [ ] `ClientResource` / `ClientResourceImpl` / `ClientService`
     - [ ] DTO di output (lista, dettaglio con saldo e storico)
 - [ ] **Servizi**: listino con tariffe (servizio + rate insieme), attiva/disattiva
@@ -56,9 +70,9 @@ Pattern per ogni view: interfaccia `*Resource` (annotation JAX-RS) + `*ResourceI
 - [ ] Export CSV/PDF (documento non fiscale)
 
 ## Phase 5: Produzione 🚀
-- [ ] Autenticazione (es. JWT)
-- [ ] Autorizzazione (ruoli)
-- [ ] Hardening config PostgreSQL (pool, segreti via env)
+- [x] Autenticazione (JWT) e autorizzazione (ruoli) — vedi Phase 1b
+- [ ] Hardening config PostgreSQL (pool, segreti via env) e chiave JWT via secret
+- [ ] Più operatori per studio (estensione del modello account)
 - [ ] Dockerizzazione e CI/CD
 
 ## Fuori ambito MVP

@@ -17,7 +17,7 @@ import jakarta.validation.constraints.NotNull;
  */
 @Entity
 @Table(name = "expense")
-public class ExpenseModel extends AuditedModel {
+public class ExpenseModel extends TenantModel {
 
     @NotBlank
     @Column(name = "name", nullable = false)

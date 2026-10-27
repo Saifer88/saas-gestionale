@@ -3,6 +3,9 @@ package com.pirris.model;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import com.pirris.model.enums.PackageKind;
 import com.pirris.model.enums.PackageKindConverter;
 import com.pirris.model.enums.PaymentMethod;
@@ -15,12 +18,11 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
 /**
- * A prepaid lesson or time package bought by a client
- * (table {@code lesson_package}). This table carries no audit columns.
+ * A prepaid lesson or time package bought by a client (table {@code lesson_package}).
  */
 @Entity
 @Table(name = "lesson_package")
-public class LessonPackageModel extends BaseModel {
+public class LessonPackageModel extends TenantModel {
 
     @NotNull
     @Column(name = "client_id", nullable = false)
@@ -39,6 +41,7 @@ public class LessonPackageModel extends BaseModel {
     @Column(name = "expires_on")
     public LocalDateTime expiresOn;
 
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     @Column(name = "notes", nullable = false)
     public String notes = "";
 

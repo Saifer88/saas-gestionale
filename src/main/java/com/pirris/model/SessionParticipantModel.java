@@ -14,11 +14,11 @@ import jakarta.validation.constraints.NotNull;
 /**
  * Link between a {@link TrainingSessionModel} and a {@link ClientModel}
  * attending it, with per-participant payment tracking
- * (table {@code session_participant}). This table carries no audit columns.
+ * (table {@code session_participant}).
  */
 @Entity
 @Table(name = "session_participant")
-public class SessionParticipantModel extends BaseModel {
+public class SessionParticipantModel extends TenantModel {
 
     @NotNull
     @Column(name = "session_id", nullable = false)

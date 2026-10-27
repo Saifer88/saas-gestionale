@@ -1,8 +1,9 @@
 # Gestionale Paola - Backend
 
-Backend per **Gestionale Paola**, costruito con **Quarkus**, **Hibernate Panache** e
-**PostgreSQL**. Serve l'app nativa **paola_gestionale** (SwiftUI, macOS/iOS): gestione
-servizi di training, agenda clienti, pacchetti prepagati e contabilità.
+Backend SaaS **multi-tenant** per **Gestionale Paola**, costruito con **Quarkus**,
+**Hibernate Panache** e **PostgreSQL**. Serve l'app nativa **paola_gestionale**
+(SwiftUI, macOS/iOS): gestione servizi di training, agenda clienti, pacchetti
+prepagati e contabilità, con ogni studio isolato dagli altri.
 
 ## 🚀 Quick Start
 
@@ -42,6 +43,11 @@ Lo schema è gestito da **Liquibase** (eseguito automaticamente all'avvio in dev
 - **Extra**: OpenAPI/Swagger, Hibernate Validator, SmallRye Health, CORS
 
 ### Principi di design
+- **Multi-tenant**: ogni *studio* (`studio`) è un tenant isolato. `studio_id` su ogni
+  tabella di dominio; l'isolamento è applicativo (repository tenant-aware che filtrano
+  e stampano sempre lo studio corrente), con **deny-by-default** senza tenant autenticato.
+- **Auth JWT**: login pubblico, cambio password per l'utente, registrazione studio/account
+  solo per l'admin. Password BCrypt, token RS256.
 - **Resource orientate alle view** dell'app, non specchio delle tabelle: il contratto
   HTTP rispecchia ciò che ogni schermata chiede.
 - **Contabilità derivata**: nessuna tabella ledger. Saldi e incassi si calcolano dagli
@@ -56,17 +62,20 @@ Lo schema è gestito da **Liquibase** (eseguito automaticamente all'avvio in dev
 
 ## 🗺️ Stato & Roadmap
 
-### Stato: 🏗️ Modello completo, API in costruzione
-- [x] Schema database (12 tabelle) consolidato in Liquibase.
+### Stato: 🏗️ Fondamenta pronte, API in costruzione
+- [x] Schema database (13 tabelle: 11 dominio + studio + account) in Liquibase.
 - [x] Entity Panache implementate e validate contro lo schema.
+- [x] Multi-tenant (isolamento applicativo) + autenticazione JWT, con test di isolamento.
 - [x] Profili dev/test/prod, CORS, OpenAPI, health.
 - [ ] Resource per view + servizi di dominio (saldi, crediti, calendario).
 - [ ] Reporting (incassi, ore lavorate, estratto conto, forfettario).
-- [ ] Autenticazione/autorizzazione.
 
 ---
 
-## 📊 Schema del database (11 tabelle)
+## 📊 Schema del database (13 tabelle: 11 dominio + studio/account)
+
+> Tutte le tabelle di dominio portano `studio_id` (tenant). `studio` e `account`
+> sono il layer di identità. Le relazioni qui sotto sono quelle di dominio.
 
 ```mermaid
 erDiagram

@@ -3,6 +3,9 @@ package com.pirris.model;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import com.pirris.model.enums.InvoiceStatus;
 import com.pirris.model.enums.InvoiceStatusConverter;
 
@@ -18,7 +21,7 @@ import jakarta.validation.constraints.NotNull;
  */
 @Entity
 @Table(name = "invoice")
-public class InvoiceModel extends AuditedModel {
+public class InvoiceModel extends TenantModel {
 
     @NotNull
     @Column(name = "client_id", nullable = false)
@@ -46,6 +49,7 @@ public class InvoiceModel extends AuditedModel {
     @Column(name = "pdf_path")
     public String pdfPath;
 
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     @Column(name = "notes")
     public String notes = "";
 }

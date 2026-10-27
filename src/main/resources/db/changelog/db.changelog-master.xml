@@ -6,9 +6,77 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
     <!-- ========================================================================= -->
-    <!-- GESTIONALE PAOLA - COMPLETE MERGED DATABASE SCHEMA (FINAL STATUS V16)     -->
-    <!-- Single consolidated Liquibase schema file merging all features V1 to V16  -->
+    <!-- GESTIONALE PAOLA - DATABASE SCHEMA (multi-tenant)                         -->
+    <!-- Identity tables (studio, account) + 11 tenant-scoped domain tables.       -->
+    <!-- Tenant-scoped tables carry studio_id (Hibernate @TenantId discriminator). -->
     <!-- ========================================================================= -->
+
+    <!-- IDENTITY: STUDIO (tenant) -->
+    <changeSet id="000-create-table-studio" author="gestionale">
+        <comment>Tenant: an isolated studio</comment>
+        <createTable tableName="studio">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_studio"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- IDENTITY: ACCOUNT (login) -->
+    <changeSet id="000b-create-table-account" author="gestionale">
+        <comment>Login identity belonging to a studio</comment>
+        <createTable tableName="account">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_account"/>
+            </column>
+            <column name="studio_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uk_account_email"/>
+            </column>
+            <column name="password_hash" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="display_name" type="VARCHAR(255)" defaultValue="">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role_raw" type="VARCHAR(50)" defaultValue="user">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="account"
+                                 baseColumnNames="studio_id"
+                                 constraintName="fk_account_studio"
+                                 referencedTableName="studio"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <createIndex tableName="account" indexName="idx_account_studio">
+            <column name="studio_id"/>
+        </createIndex>
+    </changeSet>
 
     <!-- 1. TRAINING SERVICE -->
     <changeSet id="001-create-table-training-service" author="gestionale">
@@ -16,6 +84,9 @@
         <createTable tableName="training_service">
             <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false" primaryKeyName="pk_training_service"/>
+            </column>
+            <column name="studio_id" type="UUID">
+                <constraints nullable="false"/>
             </column>
             <column name="name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
@@ -43,6 +114,9 @@
         <createTable tableName="service_rate">
             <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false" primaryKeyName="pk_service_rate"/>
+            </column>
+            <column name="studio_id" type="UUID">
+                <constraints nullable="false"/>
             </column>
             <column name="service_id" type="UUID">
                 <constraints nullable="false"/>
@@ -85,6 +159,9 @@
         <createTable tableName="client">
             <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false" primaryKeyName="pk_client"/>
+            </column>
+            <column name="studio_id" type="UUID">
+                <constraints nullable="false"/>
             </column>
             <column name="first_name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
@@ -168,6 +245,9 @@
             <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false" primaryKeyName="pk_training_session"/>
             </column>
+            <column name="studio_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
             <column name="start_date" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -220,6 +300,9 @@
             <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false" primaryKeyName="pk_lesson_package"/>
             </column>
+            <column name="studio_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
             <column name="client_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
@@ -244,6 +327,12 @@
                 <constraints nullable="false"/>
             </column>
             <column name="kind_raw" type="VARCHAR(50)" defaultValue="lessons">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -271,6 +360,9 @@
             <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false" primaryKeyName="pk_session_participant"/>
             </column>
+            <column name="studio_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
             <column name="session_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
@@ -288,6 +380,12 @@
                 <constraints nullable="false"/>
             </column>
             <column name="is_black" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -331,6 +429,9 @@
             <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false" primaryKeyName="pk_unavailability"/>
             </column>
+            <column name="studio_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
             <column name="start_date" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -362,6 +463,9 @@
         <createTable tableName="invoice">
             <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false" primaryKeyName="pk_invoice"/>
+            </column>
+            <column name="studio_id" type="UUID">
+                <constraints nullable="false"/>
             </column>
             <column name="client_id" type="UUID">
                 <constraints nullable="false"/>
@@ -417,6 +521,9 @@
             <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false" primaryKeyName="pk_expense"/>
             </column>
+            <column name="studio_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
             <column name="name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
@@ -458,6 +565,9 @@
         <createTable tableName="course">
             <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false" primaryKeyName="pk_course"/>
+            </column>
+            <column name="studio_id" type="UUID">
+                <constraints nullable="false"/>
             </column>
             <column name="name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
@@ -512,6 +622,9 @@
         <createTable tableName="course_participant">
             <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false" primaryKeyName="pk_course_participant"/>
+            </column>
+            <column name="studio_id" type="UUID">
+                <constraints nullable="false"/>
             </column>
             <column name="course_id" type="UUID">
                 <constraints nullable="false"/>

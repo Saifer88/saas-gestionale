@@ -2,6 +2,9 @@ package com.pirris.model;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -13,7 +16,7 @@ import jakarta.validation.constraints.NotNull;
  */
 @Entity
 @Table(name = "unavailability")
-public class UnavailabilityModel extends AuditedModel {
+public class UnavailabilityModel extends TenantModel {
 
     @NotNull
     @Column(name = "start_date", nullable = false)
@@ -29,6 +32,7 @@ public class UnavailabilityModel extends AuditedModel {
     @Column(name = "all_day", nullable = false)
     public boolean allDay = false;
 
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     @Column(name = "notes")
     public String notes = "";
 }

@@ -21,10 +21,15 @@ import org.junit.jupiter.api.Test;
  * Boots the Quarkus context so Liquibase builds the schema on H2 and Hibernate
  * validates every entity mapping against the real columns. Persists the entities
  * touched by the recent refactor (enum converters, LocalTime columns, course_id,
- * removed denormalised columns) and reads them back.
+ * studio_id, removed denormalised columns) and reads them back.
+ *
+ * <p>Tenant isolation is an application-layer concern (see TenantIsolationTest);
+ * here we set {@code studioId} directly, as this test only checks the O/R mapping.</p>
  */
 @QuarkusTest
 class SchemaMappingTest {
+
+    private static final UUID STUDIO = UUID.fromString("11111111-1111-1111-1111-111111111111");
 
     @Inject
     EntityManager em;
@@ -36,12 +41,14 @@ class SchemaMappingTest {
         course.name = "Functional";
         course.weekday = 1;
         course.startTime = LocalTime.of(18, 0);
+        course.studioId = STUDIO;
         course.persist();
 
         TrainingSessionModel session = new TrainingSessionModel();
         session.startDate = LocalDateTime.now();
         session.status = SessionStatus.PROVISIONAL;
         session.courseId = course.id;
+        session.studioId = STUDIO;
         session.persist();
 
         em.flush();
@@ -51,6 +58,7 @@ class SchemaMappingTest {
         assertNotNull(reloaded);
         assertEquals(SessionStatus.PROVISIONAL, reloaded.status);
         assertEquals(course.id, reloaded.courseId);
+        assertEquals(STUDIO, reloaded.studioId);
     }
 
     @Test
@@ -60,6 +68,7 @@ class SchemaMappingTest {
         client.firstName = "Anna";
         client.lastName = "Bianchi";
         client.joinedOn = LocalDateTime.now();
+        client.studioId = STUDIO;
         client.persist();
         UUID clientId = client.id;
 
@@ -69,10 +78,12 @@ class SchemaMappingTest {
         pkg.capacity = 10;
         pkg.paymentMethod = PaymentMethod.CARD;
         pkg.kind = PackageKind.TIME;
+        pkg.studioId = STUDIO;
         pkg.persist();
 
         TrainingSessionModel session = new TrainingSessionModel();
         session.startDate = LocalDateTime.now();
+        session.studioId = STUDIO;
         session.persist();
 
         SessionParticipantModel part = new SessionParticipantModel();
@@ -80,6 +91,7 @@ class SchemaMappingTest {
         part.clientId = clientId;
         part.priceCents = 5000;
         part.paymentMethod = PaymentMethod.TRANSFER;
+        part.studioId = STUDIO;
         part.persist();
 
         em.flush();

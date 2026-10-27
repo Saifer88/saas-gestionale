@@ -3,6 +3,9 @@ package com.pirris.model;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import com.pirris.model.enums.SessionStatus;
 import com.pirris.model.enums.SessionStatusConverter;
 
@@ -18,7 +21,7 @@ import jakarta.validation.constraints.NotNull;
  */
 @Entity
 @Table(name = "training_session")
-public class TrainingSessionModel extends AuditedModel {
+public class TrainingSessionModel extends TenantModel {
 
     @NotNull
     @Column(name = "start_date", nullable = false)
@@ -39,6 +42,7 @@ public class TrainingSessionModel extends AuditedModel {
     @Column(name = "course_id")
     public UUID courseId;
 
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     @Column(name = "notes", nullable = false)
     public String notes = "";
 

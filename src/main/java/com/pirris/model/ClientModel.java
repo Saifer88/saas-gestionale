@@ -5,6 +5,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -16,7 +19,7 @@ import jakarta.validation.constraints.NotBlank;
  */
 @Entity
 @Table(name = "client")
-public class ClientModel extends AuditedModel {
+public class ClientModel extends TenantModel {
 
     @NotBlank
     @Column(name = "first_name", nullable = false)
@@ -41,12 +44,15 @@ public class ClientModel extends AuditedModel {
     @Column(name = "birth_date")
     public LocalDate birthDate;
 
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     @Column(name = "notes", nullable = false)
     public String notes = "";
 
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     @Column(name = "anamnesis", nullable = false)
     public String anamnesis = "";
 
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     @Column(name = "physical_analysis", nullable = false)
     public String physicalAnalysis = "";
 
