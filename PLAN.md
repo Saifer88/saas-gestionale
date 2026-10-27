@@ -33,7 +33,11 @@ Piano di implementazione del backend a servizio dell'app `paola_gestionale`.
 Le resource espongono ciò che la schermata chiede, non le tabelle.
 
 Pattern per ogni view: interfaccia `*Resource` (annotation JAX-RS) + `*ResourceImpl`
-(delega al service) + DTO in `dto/<area>/` + `*Service` stub.
+(delega al service) + DTO in `dto/<area>/` + `*Service` (classe concreta
+`@ApplicationScoped`, niente split interfaccia/impl: lo split resta solo sulle
+resource, dove è un vincolo di Quarkus REST). Il mapping entity↔DTO è un mapper
+MapStruct dedicato in `mapper/` (generato a compile-time, CDI, niente funzioni di
+mapping a mano nel service).
 
 - [ ] 🚧 **Overview** (Panoramica): incassi week/mese/anno/previsti, contatori settimanali, appuntamenti di oggi
     - [x] `OverviewResource` (interfaccia)
@@ -42,11 +46,12 @@ Pattern per ogni view: interfaccia `*Resource` (annotation JAX-RS) + `*ResourceI
     - [ ] `OverviewResourceImpl`
     - [ ] rivedere `OverviewDto`: rimuovere `statusRaw` (sostituito da `SessionStatus` tipizzato)
 - [ ] **Agenda**: calendario giorno/settimana/mese (sessioni non annullate + indisponibilità), slot suggeriti
-- [ ] **Clienti**: lista/ricerca/filtri (attivi/archiviati), dettaglio con saldo e storico, save draft, archivia
-    - [x] `ClientDraftDto` (residuo creato prima dell'approccio per-view; da integrare qui)
+- [x] 🚧 **Clienti**: lista/ricerca/filtri (attivi/archiviati), dettaglio con saldo e storico, save draft, archivia
+    - [x] `ClientDraftDto` (input; preferenze escluse: snapshot gestito dal flusso sessioni)
     - [x] `ClientRepository` tenant-aware (list attivi, ricerca)
-    - [ ] `ClientResource` / `ClientResourceImpl` / `ClientService`
-    - [ ] DTO di output (lista, dettaglio con saldo e storico)
+    - [x] `ClientResource` / `ClientResourceImpl` / `ClientService`
+    - [x] DTO di output (`ClientSummaryDto` lista, `ClientDetailDto` dettaglio)
+    - [ ] saldo e storico: campi nel contratto, popolamento derivato rimandato a `AccountService` (Phase 3)
 - [ ] **Servizi**: listino con tariffe (servizio + rate insieme), attiva/disattiva
 - [ ] **Pacchetti**: lista per cliente, residui derivati, acquisto
 - [ ] **Pagamenti**: saldo cliente, lezioni non pagate, estratto conto

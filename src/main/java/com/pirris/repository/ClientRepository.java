@@ -1,11 +1,11 @@
 package com.pirris.repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import com.pirris.model.ClientModel;
 
-import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -36,6 +36,6 @@ public class ClientRepository extends TenantRepository<ClientModel> {
                         + "lower(firstName) like :like or lower(lastName) like :like "
                         + "or lower(phone) like :like or lower(email) like :like)",
                 Sort.by("lastName").and("firstName"),
-                Parameters.with("like", like)).list();
+                Map.of("like", like)).list();
     }
 }

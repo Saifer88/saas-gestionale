@@ -1,6 +1,8 @@
 package com.pirris.repository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -9,7 +11,6 @@ import com.pirris.security.TenantContext;
 
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
-import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
 import jakarta.inject.Inject;
 
@@ -24,6 +25,10 @@ import jakarta.inject.Inject;
  * ignore the tenant. Deny by default: with no authenticated tenant the context
  * throws before any query runs.</p>
  *
+ * <p>Named query parameters are passed as a {@code Map<String, Object>}, the
+ * Panache-supported form ({@code io.quarkus.panache.common.Parameters} is
+ * deprecated).</p>
+ *
  * @param <T> the tenant-scoped entity type
  */
 public abstract class TenantRepository<T extends BaseModel> implements PanacheRepositoryBase<T, UUID> {
@@ -37,12 +42,12 @@ public abstract class TenantRepository<T extends BaseModel> implements PanacheRe
     // ---- Reads (always tenant-filtered) ----
 
     public List<T> listAllForTenant(Sort sort) {
-        return find("studioId = :sid", sort, Parameters.with("sid", tenant.currentStudioId())).list();
+        return find("studioId = :sid", sort, Map.of("sid", tenant.currentStudioId())).list();
     }
 
     public Optional<T> findByIdForTenant(UUID id) {
         return find("studioId = :sid and id = :id",
-                Parameters.with("sid", tenant.currentStudioId()).and("id", id))
+                Map.of("sid", tenant.currentStudioId(), "id", id))
                 .firstResultOptional();
     }
 
@@ -52,9 +57,12 @@ public abstract class TenantRepository<T extends BaseModel> implements PanacheRe
      * parameters and pass them in {@code params}. The tenant parameter {@code sid}
      * is added automatically.
      */
-    public PanacheQuery<T> queryForTenant(String extraQuery, Sort sort, Parameters params) {
-        Parameters merged = params == null ? Parameters.with("sid", tenant.currentStudioId())
-                : params.and("sid", tenant.currentStudioId());
+    public PanacheQuery<T> queryForTenant(String extraQuery, Sort sort, Map<String, Object> params) {
+        Map<String, Object> merged = new HashMap<>();
+        if (params != null) {
+            merged.putAll(params);
+        }
+        merged.put("sid", tenant.currentStudioId());
         String hql = (extraQuery == null || extraQuery.isBlank())
                 ? "studioId = :sid"
                 : "studioId = :sid and (" + extraQuery + ")";
@@ -62,7 +70,7 @@ public abstract class TenantRepository<T extends BaseModel> implements PanacheRe
     }
 
     public long countForTenant() {
-        return count("studioId = :sid", Parameters.with("sid", tenant.currentStudioId()));
+        return count("studioId = :sid", Map.of("sid", tenant.currentStudioId()));
     }
 
     // ---- Writes (always tenant-stamped) ----
@@ -76,6 +84,6 @@ public abstract class TenantRepository<T extends BaseModel> implements PanacheRe
     /** Deletes an entity by id only if it belongs to the current tenant; returns true if removed. */
     public boolean deleteByIdForTenant(UUID id) {
         return delete("studioId = :sid and id = :id",
-                Parameters.with("sid", tenant.currentStudioId()).and("id", id)) > 0;
+                Map.of("sid", tenant.currentStudioId(), "id", id)) > 0;
     }
 }
