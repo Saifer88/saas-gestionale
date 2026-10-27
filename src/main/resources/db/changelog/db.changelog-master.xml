@@ -8,7 +8,8 @@
     <!-- ========================================================================= -->
     <!-- GESTIONALE PAOLA - DATABASE SCHEMA (multi-tenant)                         -->
     <!-- Identity tables (studio, account) + 11 tenant-scoped domain tables.       -->
-    <!-- Tenant-scoped tables carry studio_id (Hibernate @TenantId discriminator). -->
+    <!-- Tenant-scoped tables carry studio_id; isolation is enforced in the app    -->
+    <!-- layer via TenantRepository, so tenant query indexes are studio_id-first.   -->
     <!-- ========================================================================= -->
 
     <!-- IDENTITY: STUDIO (tenant) -->
@@ -95,7 +96,7 @@
             <column name="duration_minutes" type="INT" defaultValueNumeric="60">
                 <constraints nullable="false"/>
             </column>
-            <column name="color_hex" type="VARCHAR(50)" defaultValue=""/>
+            <column name="color_hex" type="VARCHAR(9)" defaultValue=""/>
             <column name="is_archived" type="BOOLEAN" defaultValueBoolean="false">
                 <constraints nullable="false"/>
             </column>
@@ -232,6 +233,7 @@
             <column name="preferred_rate_id"/>
         </createIndex>
         <createIndex tableName="client" indexName="idx_client_name_archived">
+            <column name="studio_id"/>
             <column name="is_archived"/>
             <column name="last_name"/>
             <column name="first_name"/>
@@ -278,13 +280,11 @@
                                  referencedColumnNames="id"
                                  onDelete="SET NULL"/>
 
-        <createIndex tableName="training_session" indexName="idx_training_session_start">
-            <column name="start_date"/>
-        </createIndex>
         <createIndex tableName="training_session" indexName="idx_training_session_service">
             <column name="service_id"/>
         </createIndex>
         <createIndex tableName="training_session" indexName="idx_training_session_calendar">
+            <column name="studio_id"/>
             <column name="start_date"/>
             <column name="status_raw"/>
         </createIndex>
@@ -452,6 +452,7 @@
         </createTable>
 
         <createIndex tableName="unavailability" indexName="idx_unavailability_range">
+            <column name="studio_id"/>
             <column name="start_date"/>
             <column name="end_date"/>
         </createIndex>
@@ -502,10 +503,8 @@
                                  referencedColumnNames="id"
                                  onDelete="CASCADE"/>
 
-        <createIndex tableName="invoice" indexName="idx_invoice_client">
-            <column name="client_id"/>
-        </createIndex>
         <createIndex tableName="invoice" indexName="idx_invoice_date">
+            <column name="studio_id"/>
             <column name="invoice_date"/>
         </createIndex>
         <createIndex tableName="invoice" indexName="idx_invoice_client_date">
@@ -550,10 +549,8 @@
             </column>
         </createTable>
 
-        <createIndex tableName="expense" indexName="idx_expense_date">
-            <column name="date"/>
-        </createIndex>
         <createIndex tableName="expense" indexName="idx_expense_reporting">
+            <column name="studio_id"/>
             <column name="date"/>
             <column name="is_personal"/>
         </createIndex>
@@ -611,6 +608,7 @@
             <column name="service_id"/>
         </createIndex>
         <createIndex tableName="course" indexName="idx_course_weekday">
+            <column name="studio_id"/>
             <column name="weekday"/>
             <column name="is_active"/>
         </createIndex>
