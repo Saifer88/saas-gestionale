@@ -6,6 +6,7 @@ import org.jboss.resteasy.reactive.RestQuery;
 
 import com.pirris.dto.overview.OverviewDto;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -13,10 +14,11 @@ import jakarta.ws.rs.core.MediaType;
 
 /**
  * Serves the Panoramica (overview) screen. Implemented by
- * {@link OverviewResourceImpl}.
+ * {@code OverviewResourceImpl}. Requires an authenticated account.
  */
 @Path("/overview")
 @Produces(MediaType.APPLICATION_JSON)
+@RolesAllowed({ "admin", "user" })
 public interface OverviewResource {
 
     /**

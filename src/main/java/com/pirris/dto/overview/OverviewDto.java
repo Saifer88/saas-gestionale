@@ -1,6 +1,10 @@
 package com.pirris.dto.overview;
 
+import java.time.LocalTime;
 import java.util.List;
+import java.util.UUID;
+
+import com.pirris.model.enums.SessionStatus;
 
 /**
  * Payload for the Panoramica (overview) screen. Mirrors the four rows the app
@@ -32,12 +36,16 @@ public record OverviewDto(
             int plannedLessons) {
     }
 
-    /** Row 3: one entry per appointment today, ordered by time. */
+    /**
+     * Row 3: one entry per appointment today, ordered by time. Participants are
+     * referenced by id (names are not denormalized; the app resolves them from
+     * the client list, as for agenda slots).
+     */
     public record TodayAppointment(
-            String sessionId,
-            String time,
-            List<String> clientNames,
+            UUID sessionId,
+            LocalTime time,
+            List<UUID> clientIds,
             long totalPriceCents,
-            String statusRaw) {
+            SessionStatus status) {
     }
 }
